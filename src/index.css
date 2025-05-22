@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================================================ */
+
+html {
+    font-size: 62.5%;
+    /* =10px, easier to calculate */
+}
+
+body {
+    @apply font-sans;
+    @apply leading-none;
+    background-color: #000;
+    color: #fff;
+    font-size: 1.6rem;
+}
+
+.move-and-rest {
+    animation: move-and-rest 10s ease-in-out 5s infinite;
+}
+
+@keyframes move-and-rest {
+    0%,
+    20% {
+        transform: rotate(0deg);
+    }
+
+    10% {
+        transform: rotate(-40deg);
+    }
+    15% {
+        transform: rotate(30deg);
+    }
+    20%,
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.blink {
+    animation: blink 2s steps(1, end) infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes enlarge {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.rotate-and-rest {
+    animation: rotate-and-rest 10s infinite ease-in-out;
+}
+
+@keyframes rotate-and-rest {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    5% {
+        transform: rotate(-180deg);
+    }
+    10% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
