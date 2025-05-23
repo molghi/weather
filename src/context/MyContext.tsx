@@ -63,6 +63,9 @@ interface MyContextType {
     setWeather: React.Dispatch<React.SetStateAction<WeatherObject | null>>;
     timezone: TimezoneObject | null;
     setTimezone: React.Dispatch<React.SetStateAction<TimezoneObject | null>>;
+    getLocationLocalTime: (offsetSeconds: number) => Date;
+    toLocalISOString: (date: Date) => string;
+    formatDuration: (seconds: number) => string;
 }
 
 // Provide default value to createContext
@@ -79,8 +82,45 @@ export const ContextProvider = ({ children }: ContextProviderProps) => {
     const [weather, setWeather] = useState<WeatherObject | null>(null);
     const [timezone, setTimezone] = useState<TimezoneObject | null>(null);
 
+    const getLocationLocalTime = (offsetSeconds: number): Date => {
+        if (!offsetSeconds) return new Date();
+        const nowUTC = new Date();
+        const utcMillis = nowUTC.getTime() + nowUTC.getTimezoneOffset() * 60000;
+        return new Date(utcMillis + offsetSeconds * 1000);
+    };
+
+    const toLocalISOString = (date: Date): string => {
+        const padIt = (num: number) => num.toString().padStart(2, "0");
+        const year = date.getFullYear();
+        const month = padIt(date.getMonth() + 1);
+        const day = padIt(date.getDate());
+        const hour = padIt(date.getHours());
+        const minute = padIt(date.getMinutes());
+        const second = padIt(date.getSeconds());
+        return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+    };
+
+    const formatDuration = (seconds: number): string => {
+        const totalMinutes = Math.floor(seconds / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        return `${hours}h ${minutes}m`;
+    };
+
     return (
-        <MyContext.Provider value={{ coords, setCoords, weather, setWeather, timezone, setTimezone }}>
+        <MyContext.Provider
+            value={{
+                coords,
+                setCoords,
+                weather,
+                setWeather,
+                timezone,
+                setTimezone,
+                getLocationLocalTime,
+                toLocalISOString,
+                formatDuration,
+            }}
+        >
             {children}
         </MyContext.Provider>
     );

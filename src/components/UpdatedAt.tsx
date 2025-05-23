@@ -14,8 +14,11 @@ const UpdatedAt = () => {
 
     return (
         <>
-            <div className="opacity-20 text-[14px] absolute bottom-[10px] left-[10px]">
-                <span>Updated at</span> <span title={`Updated at ${dateTime} (local time)`}>{time}</span>
+            <div
+                className="opacity-20 text-[14px] absolute bottom-[10px] left-[10px]"
+                title={`Updated at ${dateTime} (local time)`}
+            >
+                <span>Updated at</span> <span>{time}</span>
             </div>
         </>
     );

@@ -17,6 +17,8 @@ body {
     font-size: 1.6rem;
 }
 
+/* ================================================================================================ */
+
 .move-and-rest {
     animation: move-and-rest 10s ease-in-out 5s infinite;
 }
@@ -39,6 +41,8 @@ body {
     }
 }
 
+/* ================================================================================================ */
+
 .blink {
     animation: blink 2s steps(1, end) infinite;
 }
@@ -56,6 +60,8 @@ body {
     }
 }
 
+/* ================================================================================================ */
+
 @keyframes enlarge {
     0% {
         transform: scale(1);
@@ -67,6 +73,8 @@ body {
         transform: scale(1);
     }
 }
+
+/* ================================================================================================ */
 
 .rotate-and-rest {
     animation: rotate-and-rest 10s infinite ease-in-out;
@@ -86,4 +94,49 @@ body {
     100% {
         transform: rotate(0deg);
     }
+}
+
+/* ================================================================================================ */
+
+/* UV INDEX ICON */
+
+.uv-index {
+    position: relative;
+}
+
+.uv-index::before {
+    content: "UV";
+    color: black;
+    z-index: 1;
+    position: absolute;
+    top: -6px;
+    left: -14.5px;
+    font-family: Menlo, Courier;
+    font-size: 13px;
+    font-weight: bold;
+    width: 0px;
+    height: 0px;
+}
+
+.uv-index::after {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -16px;
+    background: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+}
+
+/* ================================================================================================ */
+
+.location:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    opacity: 1;
+}
+
+.location:hover button {
+    visibility: visible;
+    opacity: 0.3;
 }

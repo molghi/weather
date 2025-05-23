@@ -8,6 +8,7 @@ import { useEffect, useContext } from "react";
 import MyContext from "./context/MyContext";
 import fetchWeather from "./utils/fetchWeather";
 import fetchTimezone from "./utils/fetchTimezone";
+import giveShortDescription from "./utils/getShortDescription";
 
 function App() {
     // Bring in my context
@@ -22,16 +23,23 @@ function App() {
         fetchTimezone(coords, setTimezone);
     }, []);
 
-    // console.log(weather);
-    console.log(timezone);
+    useEffect(() => {
+        if (weather) {
+            document.title += `: ${Math.round(weather.temp)}°C, ${giveShortDescription(weather.weathercode)}`;
+        }
+    }, [weather]);
+
+    console.clear();
+    console.log("weather", weather);
+    // console.log("timezone", timezone);
 
     return (
         <>
             <TopLeft />
-            <Weather />
+            {weather && <Weather />}
             <UpdatedAt />
             <BottomRight />
-            {/* <SavedLocations /> */}
+            <SavedLocations />
         </>
     );
 }

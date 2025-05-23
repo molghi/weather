@@ -1,5 +1,14 @@
 import { useContext } from "react";
 import MyContext from "../context/MyContext";
+import interpretWeathercode from "../utils/interpretWeathercode";
+import getWeatherIcon from "../utils/getWeatherIcon";
+
+/*
+TO DO HERE:
+
+- 2 top btns - functionality on click
+- C to F conversion on click
+*/
 
 const WeatherTop = () => {
     // Bring in my context
@@ -7,29 +16,72 @@ const WeatherTop = () => {
     // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
     if (!context) throw new Error("MyContext must be used within a ContextProvider");
     // Pull out from context
-    const { weather } = context;
+    const { weather, timezone, getLocationLocalTime, toLocalISOString } = context;
+
+    const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
+    const isoLikeLocal = toLocalISOString(locationDateTimeNow);
 
     const feelsLikeIndex = weather
-        ? weather.hourly.time.findIndex((entry: string) => entry.startsWith(new Date().toISOString().slice(0, 13)))
+        ? weather.hourly.time.findIndex((entry: string) => entry.startsWith(isoLikeLocal.slice(0, 13)))
         : -1;
+
+    const locationHoursNow = new Date(locationDateTimeNow).getHours();
+    let dayTime = ``;
+    switch (locationHoursNow) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            dayTime = "Night";
+            break;
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+            dayTime = "Morning";
+            break;
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+        case 16:
+        case 17:
+            dayTime = "Day";
+            break;
+        case 18:
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+            dayTime = "Evening";
+            break;
+    }
 
     const weatherMain = `${Math.round(weather ? weather.temp : 0)}°C`;
     const weatherFeelsLike = `Feels like ${weather ? Math.round(weather.hourly.apparent_temperature[feelsLikeIndex]) : 0}°C`;
-    const description = `CHANGE: Mainly clear, partly cloudy, and overcast`;
-    const icon = `https://molghi.github.io/weatherapp/assets/icons/partly-cloudy-night.4aca209bd8bd9e66fcec.svg`;
+    const description = interpretWeathercode(weather ? weather.weathercode : -1);
+    const icon = getWeatherIcon(weather ? weather.weathercode : -1, dayTime);
 
     return (
         <div>
             <div className="flex items-center flex-wrap justify-center text-center gap-x-[40px] mb-[30px] relative">
                 {/* MAIN TEMP & FEELS LIKE */}
-                <div className="flex flex-col leading-none cursor-pointer" title="Click to convert to Celsius/Fahrenheit">
+                <div
+                    className="flex flex-col leading-none cursor-pointer"
+                    title="Click to convert to Celsius/Fahrenheit"
+                    onClick={() => console.log(`Convert to Celsius/Fahrenheit`)}
+                >
                     <span className="text-[80px] font-bold">{weatherMain}</span>
                     <span className="tracking-[1px] -mt-[3px] opacity-60">{weatherFeelsLike}</span>
                 </div>
 
                 {/* ICON */}
                 <div className="w-[130px] h-[130px]">
-                    CHANGE:
                     <img src={icon} />
                 </div>
 
@@ -39,6 +91,7 @@ const WeatherTop = () => {
                 {/* BTNS */}
                 <div className="flex items-center gap-[10px] absolute top-0 right-[15%]">
                     <button
+                        onClick={() => console.log(`Make this your primary location`)}
                         title="Make this your primary location"
                         className="w-[39px] p-[10px] opacity-20 transition-all duration-200 hover:opacity-100"
                     >
@@ -50,6 +103,7 @@ const WeatherTop = () => {
                         </svg>
                     </button>
                     <button
+                        onClick={() => console.log(`Add this location to your list`)}
                         title="Add this location to your list"
                         className="w-[38px] p-[10px] opacity-20 transition-all duration-200 hover:opacity-100"
                     >
