@@ -12,13 +12,11 @@ const Weather = () => {
     }, []);
 
     return (
-        <div>
-            <div className="max-w-[1000px] mx-auto">
-                <WeatherTop />
-                <WeatherMiddle />
-                <WeatherHourly />
-                <WeatherDaily />
-            </div>
+        <div data-name="Weather" className="max-w-[1000px] mx-auto">
+            <WeatherTop />
+            <WeatherMiddle />
+            <WeatherHourly />
+            <WeatherDaily />
         </div>
     );
 };

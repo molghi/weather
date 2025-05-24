@@ -140,3 +140,43 @@ body {
     visibility: visible;
     opacity: 0.3;
 }
+
+/* ================================================================================================ */
+
+.move {
+    filter: blur(1px) brightness(30%);
+    transform: scale(1.2);
+    animation-name: moveIt;
+    animation-duration: 30s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes moveIt {
+    0% {
+        transform: scale(1.2) translateX(-8vw);
+    }
+
+    100% {
+        transform: scale(1.2) translateX(8vw);
+    }
+}
+
+/* ================================================================================================ */
+
+.fadeIn {
+    animation-name: fadeIn;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+    0% {
+        filter: brightness(0);
+    }
+    100% {
+        filter: brightness(100%) blur(1px);
+    }
+}

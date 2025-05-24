@@ -55,6 +55,18 @@ export interface TimezoneObject {
     };
 }
 
+export interface SavedLocationProps {
+    localTime: string;
+    localDateTime: string;
+    cityName: string;
+    country: string;
+    temp: string;
+    icon: string;
+    coords: [string, string];
+    feelsLikeTemp: string;
+    description: string;
+}
+
 // Define context value type
 interface MyContextType {
     coords: [number, number];
@@ -66,6 +78,16 @@ interface MyContextType {
     getLocationLocalTime: (offsetSeconds: number) => Date;
     toLocalISOString: (date: Date) => string;
     formatDuration: (seconds: number) => string;
+    tempUnits: string;
+    setTempUnits: React.Dispatch<React.SetStateAction<string>>;
+    savedLocations: SavedLocationProps[] | null;
+    setSavedLocations: React.Dispatch<React.SetStateAction<SavedLocationProps[]>>;
+    modalOpen: boolean;
+    setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    mapOpen: boolean;
+    setMapOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    localStoragePrimaryLocationKey: string;
+    localStorageSavedLocationsKey: string;
 }
 
 // Provide default value to createContext
@@ -78,9 +100,20 @@ interface ContextProviderProps {
 
 // Context
 export const ContextProvider = ({ children }: ContextProviderProps) => {
-    const [coords, setCoords] = useState<[number, number]>([41.0082, 28.9784]);
+    const localStoragePrimaryLocationKey = "weather_primary_location";
+    const localStorageSavedLocationsKey = "weather_saved_locations";
+    const savedFromLS = localStorage.getItem(localStorageSavedLocationsKey);
+    const primaryFromLS = localStorage.getItem(localStoragePrimaryLocationKey);
+
+    const [coords, setCoords] = useState<[number, number]>(
+        primaryFromLS ? JSON.parse(primaryFromLS) : [47.6061255, -122.3321268]
+    );
     const [weather, setWeather] = useState<WeatherObject | null>(null);
     const [timezone, setTimezone] = useState<TimezoneObject | null>(null);
+    const [tempUnits, setTempUnits] = useState<string>("C"); // C for Celsius, F for Fahrenheit
+    const [savedLocations, setSavedLocations] = useState<SavedLocationProps[]>(savedFromLS ? JSON.parse(savedFromLS) : []);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [mapOpen, setMapOpen] = useState(false);
 
     const getLocationLocalTime = (offsetSeconds: number): Date => {
         if (!offsetSeconds) return new Date();
@@ -119,6 +152,16 @@ export const ContextProvider = ({ children }: ContextProviderProps) => {
                 getLocationLocalTime,
                 toLocalISOString,
                 formatDuration,
+                tempUnits,
+                setTempUnits,
+                savedLocations,
+                setSavedLocations,
+                modalOpen,
+                setModalOpen,
+                localStoragePrimaryLocationKey,
+                localStorageSavedLocationsKey,
+                mapOpen,
+                setMapOpen,
             }}
         >
             {children}

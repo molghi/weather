@@ -1,14 +1,9 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import MyContext from "../context/MyContext";
 import interpretWeathercode from "../utils/interpretWeathercode";
 import getWeatherIcon from "../utils/getWeatherIcon";
-
-/*
-TO DO HERE:
-
-- 2 top btns - functionality on click
-- C to F conversion on click
-*/
+import convertTempUnits from "../utils/tempConversion";
+import { SavedLocationProps } from "../context/MyContext";
 
 const WeatherTop = () => {
     // Bring in my context
@@ -16,10 +11,31 @@ const WeatherTop = () => {
     // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
     if (!context) throw new Error("MyContext must be used within a ContextProvider");
     // Pull out from context
-    const { weather, timezone, getLocationLocalTime, toLocalISOString } = context;
+    const {
+        weather,
+        timezone,
+        getLocationLocalTime,
+        toLocalISOString,
+        tempUnits,
+        setTempUnits,
+        savedLocations,
+        setSavedLocations,
+        localStorageSavedLocationsKey,
+        localStoragePrimaryLocationKey,
+    } = context;
 
     const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
     const isoLikeLocal = toLocalISOString(locationDateTimeNow);
+
+    // Get location hours-minutes
+    const time: string = `${new Date(locationDateTimeNow).getHours()}:${new Date(locationDateTimeNow)
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}`;
+    // Get location date-time formatted string
+    const dateTime: string = `${new Date(locationDateTimeNow).getDate()}/${(new Date(locationDateTimeNow).getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}/${new Date(locationDateTimeNow).getFullYear()}  ̶ ${time}`;
 
     const feelsLikeIndex = weather
         ? weather.hourly.time.findIndex((entry: string) => entry.startsWith(isoLikeLocal.slice(0, 13)))
@@ -62,10 +78,102 @@ const WeatherTop = () => {
             break;
     }
 
-    const weatherMain = `${Math.round(weather ? weather.temp : 0)}°C`;
-    const weatherFeelsLike = `Feels like ${weather ? Math.round(weather.hourly.apparent_temperature[feelsLikeIndex]) : 0}°C`;
     const description = interpretWeathercode(weather ? weather.weathercode : -1);
     const icon = getWeatherIcon(weather ? weather.weathercode : -1, dayTime);
+
+    const [weatherMain, setWeatherMain] = useState<string>("?°C");
+    const [weatherFeelsLike, setWeatherFeelsLike] = useState<string>("Feels like ?°C");
+
+    const changeTemp = (unitsNow: string) => {
+        if (unitsNow === "C") {
+            const inFahrenheitMain = parseInt(weatherMain);
+            const inFahrenheitFeelsLike = parseInt(weatherFeelsLike.split(" ").slice(2).join(" "));
+            setWeatherMain(`${Math.round(convertTempUnits(inFahrenheitMain, "to C"))}°C`);
+            setWeatherFeelsLike(`Feels like ${Math.round(convertTempUnits(inFahrenheitFeelsLike, "to C"))}°C`);
+        }
+        if (unitsNow === "F") {
+            const inCelsiusMain = parseInt(weatherMain);
+            const inCelsiusFeelsLike = parseInt(weatherFeelsLike.split(" ").slice(2).join(" "));
+            setWeatherMain(`${Math.round(convertTempUnits(inCelsiusMain, "to F"))}°F`);
+            setWeatherFeelsLike(`Feels like ${Math.round(convertTempUnits(inCelsiusFeelsLike, "to F"))}°F`);
+        }
+    };
+
+    const convertAirTemp = () => {
+        // Convert to Celsius/Fahrenheit
+        setTempUnits((prev) => {
+            const unitsNow = prev === "C" ? "F" : "C";
+            return unitsNow;
+        });
+    };
+
+    // Add the currently shown location to your list
+    const addToSaved = () => {
+        const cityName = timezone?.city ?? "";
+
+        // Compose location object
+        const locationObj: SavedLocationProps = {
+            localTime:
+                `${new Date(locationDateTimeNow).getHours()}:${new Date(locationDateTimeNow)
+                    .getMinutes()
+                    .toString()
+                    .padStart(2, "0")}` ?? "",
+            localDateTime: dateTime,
+            cityName: cityName,
+            country: timezone?.country ?? "",
+            temp: Math.round(weather?.temp ?? 0) + "",
+            icon: icon ?? "",
+            coords: [String(timezone?.coords.lat ?? 0), String(timezone?.coords.lng ?? 0)],
+            feelsLikeTemp: weatherFeelsLike ?? "",
+            description: description ?? "",
+        };
+
+        // Check if location was already added before: if so, do not add but update
+        if (savedLocations?.map((x) => x.cityName).includes(cityName)) {
+            setSavedLocations((prev) => {
+                const newSavedLocations = prev.map((locObj) => {
+                    if (locObj.cityName === cityName) {
+                        locObj.localTime = locationObj.localTime;
+                        locObj.localDateTime = locationObj.localDateTime;
+                        locObj.temp = locationObj.temp;
+                        locObj.icon = locationObj.icon;
+                        locObj.feelsLikeTemp = locationObj.feelsLikeTemp;
+                        locObj.description = locationObj.description;
+                    }
+                    return locObj;
+                });
+                localStorage.setItem(localStorageSavedLocationsKey, JSON.stringify(newSavedLocations));
+                return newSavedLocations;
+            });
+            return;
+        }
+
+        // Update state and local storage
+        setSavedLocations((prev) => {
+            const newSavedLocations = [...prev, locationObj];
+            localStorage.setItem(localStorageSavedLocationsKey, JSON.stringify(newSavedLocations));
+            return newSavedLocations;
+        });
+    };
+
+    // Make the currently shown location your primary
+    const makePrimary = () => {
+        const coords = [timezone?.coords.lat ?? 0, timezone?.coords.lng ?? 0];
+        localStorage.setItem(localStoragePrimaryLocationKey, JSON.stringify(coords));
+    };
+
+    useEffect(() => {
+        if (weather) {
+            setWeatherMain(`${Math.round(weather.temp)}°C`);
+            setWeatherFeelsLike(`Feels like ${Math.round(weather.hourly.apparent_temperature[feelsLikeIndex])}°C`);
+        }
+    }, [weather]);
+
+    useEffect(() => {
+        changeTemp(tempUnits);
+    }, [tempUnits]);
+
+    // ==============================================================================================
 
     return (
         <div>
@@ -74,7 +182,7 @@ const WeatherTop = () => {
                 <div
                     className="flex flex-col leading-none cursor-pointer"
                     title="Click to convert to Celsius/Fahrenheit"
-                    onClick={() => console.log(`Convert to Celsius/Fahrenheit`)}
+                    onClick={() => convertAirTemp()}
                 >
                     <span className="text-[80px] font-bold">{weatherMain}</span>
                     <span className="tracking-[1px] -mt-[3px] opacity-60">{weatherFeelsLike}</span>
@@ -91,7 +199,7 @@ const WeatherTop = () => {
                 {/* BTNS */}
                 <div className="flex items-center gap-[10px] absolute top-0 right-[15%]">
                     <button
-                        onClick={() => console.log(`Make this your primary location`)}
+                        onClick={() => makePrimary()}
                         title="Make this your primary location"
                         className="w-[39px] p-[10px] opacity-20 transition-all duration-200 hover:opacity-100"
                     >
@@ -103,7 +211,7 @@ const WeatherTop = () => {
                         </svg>
                     </button>
                     <button
-                        onClick={() => console.log(`Add this location to your list`)}
+                        onClick={() => addToSaved()}
                         title="Add this location to your list"
                         className="w-[38px] p-[10px] opacity-20 transition-all duration-200 hover:opacity-100"
                     >

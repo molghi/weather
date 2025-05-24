@@ -57,7 +57,7 @@ const TopLeft = () => {
     // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
     if (!context) throw new Error("MyContext must be used within a ContextProvider");
     // Pull out from context
-    const { timezone, getLocationLocalTime } = context;
+    const { weather, timezone, getLocationLocalTime, toLocalISOString } = context;
 
     const [, setTick] = useState(0); // To make it re-render every minute
     useEffect(() => {
@@ -67,6 +67,7 @@ const TopLeft = () => {
 
     // Get location date-time now (date string)
     const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
+
     // Get just location hours
     const locationHoursNow: number = new Date(locationDateTimeNow).getHours();
     // Define time of the day
@@ -117,13 +118,22 @@ const TopLeft = () => {
         .padStart(2, "0")}/${new Date(locationDateTimeNow).getFullYear()}  ̶ ${time}`;
 
     // Define sunrise
+    const localISOString = toLocalISOString(locationDateTimeNow);
+    const indexNowInDaily = weather
+        ? weather.daily.time.findIndex((timeStr: string) => timeStr.startsWith(localISOString.slice(0, 10)))
+        : -1;
     let sunword = "Sunrise";
-    let sunriseDateString: Date = new Date(timezone ? timezone.sun.rise.apparent * 1000 : -1);
-    let sunriseTimestamp: number = timezone ? timezone.sun.rise.apparent * 1000 : -1;
+    // let sunriseDateString: Date = new Date(timezone ? timezone.sun.rise.apparent * 1000 : -1);
+    let sunriseDateString: Date = new Date(weather ? new Date(weather.daily.sunrise[indexNowInDaily]) : -1);
+    // let sunriseTimestamp: number = timezone ? timezone.sun.rise.apparent * 1000 : -1;
+    let sunriseTimestamp: number = weather ? new Date(weather.daily.sunrise[indexNowInDaily]).getTime() : -1;
     let nowTimestamp: number = Date.now();
     let hoursTillSunrise: number = Math.trunc((sunriseTimestamp - nowTimestamp) / 1000 / 60 / 60);
-    let sunTime: string = `At ${sunriseDateString.getHours()}:${sunriseDateString.getMinutes()}`; // Title attr value
+    let sunTime: string = `At ${sunriseDateString.getHours()}:${sunriseDateString.getMinutes().toString().padStart(2, "0")}`; // Title attr value
     let sunIn: string = `in ${hoursTillSunrise} ${hoursTillSunrise === 1 ? "hour" : "hours"}`; // Visible value
+
+    // FIX THAT:
+    if (hoursTillSunrise === 0) sunIn = "in less than an hour";
 
     // If it is past sunrise, change to sunset
     if (sunriseTimestamp - nowTimestamp < 0) {
@@ -133,6 +143,9 @@ const TopLeft = () => {
         let hoursTillSunset: number = Math.trunc((sunsetTimestamp - nowTimestamp) / 1000 / 60 / 60);
         sunTime = `At ${sunsetDateString.getHours()}:${sunsetDateString.getMinutes()}`;
         sunIn = `in ${hoursTillSunset} ${hoursTillSunset === 1 ? "hour" : "hours"}`;
+
+        // FIX THAT:
+        if (hoursTillSunset === 0) sunIn = "in less than an hour";
     }
 
     // Define time of the day icon
@@ -143,7 +156,7 @@ const TopLeft = () => {
     if (locationHoursNow >= 18 && locationHoursNow <= 23) icon = eveningIcon;
 
     return (
-        <div className="max-w-[1400px] mx-auto absolute z-10 top-[10px] left-[10px] leading-none">
+        <div data-name="TopLeft" className="max-w-[1400px] mx-auto absolute z-10 top-[10px] left-[10px] leading-none">
             {/* TITLE */}
             <h1
                 className="text-[20px] opacity-30 mb-[10px] transition-all duration-200 hover:opacity-100

@@ -13,14 +13,14 @@ const UpdatedAt = () => {
     const time = `${weather?.fetchedAt.hoursMinutes}`;
 
     return (
-        <>
-            <div
-                className="opacity-20 text-[14px] absolute bottom-[10px] left-[10px]"
-                title={`Updated at ${dateTime} (local time)`}
-            >
-                <span>Updated at</span> <span>{time}</span>
-            </div>
-        </>
+        <div
+            data-name="UpdatedAt"
+            style={{ zIndex: 100 }}
+            className="opacity-20 text-[14px] absolute bottom-[10px] left-[10px]"
+            title={`Updated at ${dateTime} (your local time)`}
+        >
+            <span>Updated at</span> <span>{time}</span>
+        </div>
     );
 };
 
