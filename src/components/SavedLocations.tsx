@@ -13,7 +13,7 @@ const SavedLocations = () => {
     return (
         <div
             data-name="SavedLocations"
-            className="absolute top-[10px] right-[10px] max-w-[200px] w-[200px] z-[100] flex flex-col gap-y-[10px]"
+            className="absolute top-[10px] right-[10px] max-w-[190px] w-[200px] z-[100] flex flex-col gap-y-[10px]"
         >
             <div className="text-center opacity-70">Saved Locations:</div>
             {savedLocations &&

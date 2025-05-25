@@ -10,27 +10,44 @@ import fetchWeather from "./utils/fetchWeather";
 import fetchTimezone from "./utils/fetchTimezone";
 import giveShortDescription from "./utils/getShortDescription";
 import Backdrop from "./components/Backdrop";
+import "leaflet/dist/leaflet.css";
+import spinnerGif from "./img/spin2.png";
 
 function App() {
-    // Bring in my context
-    const context = useContext(MyContext);
-    // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
-    if (!context) throw new Error("MyContext must be used within a ContextProvider");
-    // Pull out from context
-    const { coords, weather, setWeather, savedLocations, setTimezone, localStoragePrimaryLocationKey } = context;
+    const context = useContext(MyContext); // Bring in my context
+    if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
+    const {
+        coords,
+        weather,
+        setWeather,
+        savedLocations,
+        timezone,
+        setTimezone,
+        localStoragePrimaryLocationKey,
+        isLoading,
+        setIsLoading,
+    } = context; // Pull out from context
 
     useEffect(() => {
-        fetchWeather(coords, setWeather);
-        fetchTimezone(coords, setTimezone);
-        const primaryFromLS = localStorage.getItem(localStoragePrimaryLocationKey);
-        if (!primaryFromLS) localStorage.setItem(localStoragePrimaryLocationKey, JSON.stringify(coords));
+        const fetchIt = () => {
+            fetchWeather(coords, setWeather, setIsLoading);
+            fetchTimezone(coords, setTimezone, setIsLoading);
+            const primaryFromLS = localStorage.getItem(localStoragePrimaryLocationKey);
+            if (!primaryFromLS) localStorage.setItem(localStoragePrimaryLocationKey, JSON.stringify(coords));
+        };
+        fetchIt();
+        const timer = setInterval(() => fetchIt(), 1000 * 60 * 60); // Fetch it every hour
+        return () => clearInterval(timer);
     }, []);
 
     useEffect(() => {
         if (weather) {
-            document.title = `Weather Control: ${Math.round(weather.temp)}°C, ${giveShortDescription(weather.weathercode)}`;
+            // Change doc title
+            document.title = `${
+                timezone && timezone.city ? timezone.city : timezone?.timezone.name.split("/").slice(-1).join("") + "*"
+            } ${timezone?.flag} | ${Math.round(weather.temp)}°C, ${giveShortDescription(weather.weathercode)}`;
         }
-    }, [weather]);
+    }, [weather, timezone]);
 
     // console.clear();
     // console.log("weather", weather);
@@ -38,12 +55,18 @@ function App() {
 
     return (
         <>
-            {/* <Backdrop /> */}
+            <Backdrop />
             <TopLeft />
             {weather && <Weather />}
             <UpdatedAt />
             <BottomRight />
             {savedLocations && savedLocations.length > 0 && <SavedLocations />}
+            {isLoading && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <img src={spinnerGif} className="w-[580px] opacity-70" style={{ animation: "spin 1s linear infinite" }} />
+                    {/* <span className="loader"></span> */}
+                </div>
+            )}
         </>
     );
 }

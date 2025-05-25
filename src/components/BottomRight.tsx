@@ -25,7 +25,7 @@ const BottomRight = () => {
             {/* SEE WORLD MAP */}
             <button
                 className="absolute bottom-[18px] right-[180px] p-0 m-0 border-none opacity-20 w-[20px] transition-all duration-300 hover:opacity-100"
-                title="Show the map"
+                title="Show world map"
                 style={{ zIndex: 100 }}
                 onClick={() => setMapOpen(true)}
             >

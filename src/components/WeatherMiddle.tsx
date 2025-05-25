@@ -34,10 +34,13 @@ const WeatherMiddle = () => {
         <div>
             <div className="mb-[25px]">
                 {/* LOCATION */}
-                <div className="text-[22px] text-center mb-[25px] flex gap-[17px] items-center justify-center">
+                <div
+                    className="text-[22px] text-center mb-[25px] flex gap-[17px] items-center justify-center"
+                    title={timezone && !timezone.city ? "*Location name is approximate" : ""}
+                >
                     <span className="opacity-50">Location:</span>
                     <span className="whitespace-nowrap">
-                        {timezone && timezone.city},{" "}
+                        {timezone && timezone.city ? timezone.city : timezone?.timezone.name.split("/").slice(-1).join("") + "*"},{" "}
                         <span className="relative">
                             {timezone && timezone.country}
                             <span className="absolute top-[-17px] right-[-20px] text-[20px] rotate-and-rest">
@@ -70,7 +73,7 @@ const WeatherMiddle = () => {
                         {/* UV INDEX */}
                         <div className="mb-[10px] text-[18px] whitespace-nowrap text-left">
                             <span className="opacity-50">UV Index: </span>
-                            <span>{weather?.daily.uv_index_max[nowIndexDaily]}</span>
+                            <span>{weather?.daily.uv_index_max[nowIndexDaily].toFixed(1)}</span>
                         </div>
 
                         {/* HUMIDITY */}
@@ -82,7 +85,7 @@ const WeatherMiddle = () => {
                     <div className="weather__col">
                         {/* CLOUD COVER */}
                         <div className="mb-[10px] text-[18px] whitespace-nowrap text-left">
-                            <span className="opacity-50">Cloud cover: </span>
+                            <span className="opacity-50">Cloud Cover: </span>
                             <span title="The percentage of cloud coverage">{weather?.hourly.cloud_cover[nowIndexHourly]}%</span>
                         </div>
                         <div className="mb-[10px] text-[18px] whitespace-nowrap text-left">

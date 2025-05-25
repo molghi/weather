@@ -88,6 +88,8 @@ interface MyContextType {
     setMapOpen: React.Dispatch<React.SetStateAction<boolean>>;
     localStoragePrimaryLocationKey: string;
     localStorageSavedLocationsKey: string;
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Provide default value to createContext
@@ -114,6 +116,7 @@ export const ContextProvider = ({ children }: ContextProviderProps) => {
     const [savedLocations, setSavedLocations] = useState<SavedLocationProps[]>(savedFromLS ? JSON.parse(savedFromLS) : []);
     const [modalOpen, setModalOpen] = useState(false);
     const [mapOpen, setMapOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const getLocationLocalTime = (offsetSeconds: number): Date => {
         if (!offsetSeconds) return new Date();
@@ -162,6 +165,8 @@ export const ContextProvider = ({ children }: ContextProviderProps) => {
                 localStorageSavedLocationsKey,
                 mapOpen,
                 setMapOpen,
+                isLoading,
+                setIsLoading,
             }}
         >
             {children}

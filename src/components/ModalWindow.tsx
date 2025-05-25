@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import fetchWeatherByCityName from "../utils/fetchWeatherByCityName";
 import fetchWeather from "../utils/fetchWeather";
 import fetchTimezone from "../utils/fetchTimezone";
+import spinnerGif from "../img/spin2.png";
 
 const ModalWindow = ({ children }: { children: ReactNode }) => {
     // Bring in my context
@@ -11,7 +12,9 @@ const ModalWindow = ({ children }: { children: ReactNode }) => {
     // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
     if (!context) throw new Error("MyContext must be used within a ContextProvider");
     // Pull out from context
-    const { setWeather, setTimezone, setModalOpen } = context;
+    const { setWeather, setTimezone, setModalOpen, setIsLoading } = context;
+
+    const [isLoadingSmall, setIsLoadingSmall] = useState<boolean>(false);
 
     const modalRoot = document.getElementById("modal");
     if (!modalRoot) return null;
@@ -22,7 +25,9 @@ const ModalWindow = ({ children }: { children: ReactNode }) => {
     const formSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // console.log(searchTerm);
+        setIsLoadingSmall(true);
         const results = await fetchWeatherByCityName(searchTerm);
+        setIsLoadingSmall(false);
         // console.log(results.results);
         setsearchResults(results.results);
     };
@@ -30,8 +35,8 @@ const ModalWindow = ({ children }: { children: ReactNode }) => {
     // Fetch weather/timezone for a place
     const fetchForPlace = async (lat: number, lng: number) => {
         setModalOpen(false);
-        await fetchWeather([lat, lng], setWeather);
-        await fetchTimezone([lat, lng], setTimezone);
+        await fetchWeather([lat, lng], setWeather, setIsLoading);
+        await fetchTimezone([lat, lng], setTimezone, setIsLoading);
     };
 
     return ReactDOM.createPortal(
@@ -51,7 +56,15 @@ const ModalWindow = ({ children }: { children: ReactNode }) => {
                     />
                     {/* RESULTS BOX BELOW */}
                     <div className="mt-[18px] w-full">
-                        {searchResults.length > 0 &&
+                        {/* LOADING SPINNER */}
+                        {isLoadingSmall && (
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <img src={spinnerGif} className="w-[200px]" style={{ animation: "spin 0.5s linear infinite" }} />
+                            </div>
+                        )}
+                        {/* RESULTS */}
+                        {searchResults &&
+                            searchResults.length > 0 &&
                             searchResults.map((result, i) => (
                                 <div
                                     key={i}

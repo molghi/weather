@@ -1,7 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
 import { TimezoneObject } from "../context/MyContext";
 
-async function fetchTimezone(coordsArr: [number, number], setTimezone: Dispatch<SetStateAction<TimezoneObject | null>>) {
+async function fetchTimezone(
+    coordsArr: [number, number],
+    setTimezone: Dispatch<SetStateAction<TimezoneObject | null>>,
+    setIsLoading: Dispatch<SetStateAction<boolean>>
+) {
     try {
         const [lat, lng] = coordsArr;
 
@@ -17,6 +21,8 @@ async function fetchTimezone(coordsArr: [number, number], setTimezone: Dispatch<
         }
 
         const data = await response.json();
+
+        setIsLoading(false);
 
         const myObj = {
             continent: data.results[0].components.continent,

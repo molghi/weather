@@ -10,15 +10,15 @@ const SavedLocation = ({ location }: { location: SavedLocationProps }) => {
     // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
     if (!context) throw new Error("MyContext must be used within a ContextProvider");
     // Pull out from context
-    const { setSavedLocations, localStorageSavedLocationsKey, setWeather, setTimezone } = context;
+    const { setSavedLocations, localStorageSavedLocationsKey, setWeather, setTimezone, setIsLoading } = context;
 
     // Fetch weather from this location
     const handleClick = async (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const target = e.target as HTMLElement; // type assertion: treat generic e.target as HTMLElement
         if (target.tagName !== "BUTTON") {
             const coords = location.coords.map((x) => +x);
-            await fetchWeather([coords[0], coords[1]], setWeather);
-            await fetchTimezone([coords[0], coords[1]], setTimezone);
+            await fetchWeather([coords[0], coords[1]], setWeather, setIsLoading);
+            await fetchTimezone([coords[0], coords[1]], setTimezone, setIsLoading);
         }
     };
 

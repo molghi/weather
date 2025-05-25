@@ -6,12 +6,10 @@ import convertTempUnits from "../utils/tempConversion";
 import { SavedLocationProps } from "../context/MyContext";
 
 const WeatherTop = () => {
-    // Bring in my context
-    const context = useContext(MyContext);
-    // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
-    if (!context) throw new Error("MyContext must be used within a ContextProvider");
-    // Pull out from context
+    const context = useContext(MyContext); // Bring in my context
+    if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
     const {
+        coords,
         weather,
         timezone,
         getLocationLocalTime,
@@ -22,7 +20,7 @@ const WeatherTop = () => {
         setSavedLocations,
         localStorageSavedLocationsKey,
         localStoragePrimaryLocationKey,
-    } = context;
+    } = context; // Pull out from context
 
     const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
     const isoLikeLocal = toLocalISOString(locationDateTimeNow);
@@ -148,6 +146,9 @@ const WeatherTop = () => {
             return;
         }
 
+        if (savedLocations && savedLocations.length === 12)
+            return window.alert("You cannot have more than 12 saved locations.\nRemove one to add another.");
+
         // Update state and local storage
         setSavedLocations((prev) => {
             const newSavedLocations = [...prev, locationObj];
@@ -167,7 +168,28 @@ const WeatherTop = () => {
             setWeatherMain(`${Math.round(weather.temp)}°C`);
             setWeatherFeelsLike(`Feels like ${Math.round(weather.hourly.apparent_temperature[feelsLikeIndex])}°C`);
         }
-    }, [weather]);
+        if (coords && coords.length > 0) {
+            // Update Saved Location
+            setSavedLocations((prev) => {
+                const newLocs = prev.map((loc) => {
+                    if (loc.coords[0] === String(timezone?.coords.lat) && loc.coords[1] === String(timezone?.coords.lng)) {
+                        return {
+                            ...loc,
+                            localTime: time,
+                            localDateTime: dateTime,
+                            temp: weatherMain.slice(0, -2),
+                            icon,
+                            feelsLikeTemp: weatherFeelsLike,
+                            description,
+                        };
+                    }
+                    return loc;
+                });
+                localStorage.setItem(localStorageSavedLocationsKey, JSON.stringify(newLocs));
+                return newLocs;
+            });
+        }
+    }, [weather, timezone]);
 
     useEffect(() => {
         changeTemp(tempUnits);
