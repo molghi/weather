@@ -29,6 +29,7 @@ function App() {
     } = context; // Pull out from context
 
     useEffect(() => {
+        // Fetch weather and timezone
         const fetchIt = () => {
             fetchWeather(coords, setWeather, setIsLoading);
             fetchTimezone(coords, setTimezone, setIsLoading);
@@ -36,22 +37,22 @@ function App() {
             if (!primaryFromLS) localStorage.setItem(localStoragePrimaryLocationKey, JSON.stringify(coords));
         };
         fetchIt();
-        const timer = setInterval(() => fetchIt(), 1000 * 60 * 60); // Fetch it every hour
+
+        // Fetch it every hour
+        const timer = setInterval(() => fetchIt(), 1000 * 60 * 60);
         return () => clearInterval(timer);
     }, []);
 
     useEffect(() => {
+        // Change document title
         if (weather) {
-            // Change doc title
             document.title = `${
-                timezone && timezone.city ? timezone.city : timezone?.timezone.name.split("/").slice(-1).join("") + "*"
+                timezone && timezone.city
+                    ? timezone.city
+                    : timezone?.timezone.name.split("/").slice(-1).join("").replaceAll("_", " ") + "*"
             } ${timezone?.flag} | ${Math.round(weather.temp)}°C, ${giveShortDescription(weather.weathercode)}`;
         }
     }, [weather, timezone]);
-
-    // console.clear();
-    // console.log("weather", weather);
-    // console.log("timezone", timezone);
 
     return (
         <>
@@ -61,10 +62,10 @@ function App() {
             <UpdatedAt />
             <BottomRight />
             {savedLocations && savedLocations.length > 0 && <SavedLocations />}
+
             {isLoading && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                     <img src={spinnerGif} className="w-[580px] opacity-70" style={{ animation: "spin 1s linear infinite" }} />
-                    {/* <span className="loader"></span> */}
                 </div>
             )}
         </>

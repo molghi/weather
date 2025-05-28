@@ -3,12 +3,9 @@ import MyContext from "../context/MyContext";
 import SavedLocation from "./SavedLocation";
 
 const SavedLocations = () => {
-    // Bring in my context
-    const context = useContext(MyContext);
-    // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
-    if (!context) throw new Error("MyContext must be used within a ContextProvider");
-    // Pull out from context
-    const { savedLocations } = context;
+    const context = useContext(MyContext); // Bring in my context
+    if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
+    const { savedLocations } = context; // Pull out from context
 
     return (
         <div

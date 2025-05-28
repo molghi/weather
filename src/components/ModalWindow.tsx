@@ -7,29 +7,25 @@ import fetchTimezone from "../utils/fetchTimezone";
 import spinnerGif from "../img/spin2.png";
 
 const ModalWindow = ({ children }: { children: ReactNode }) => {
-    // Bring in my context
-    const context = useContext(MyContext);
-    // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
-    if (!context) throw new Error("MyContext must be used within a ContextProvider");
-    // Pull out from context
-    const { setWeather, setTimezone, setModalOpen, setIsLoading } = context;
+    const context = useContext(MyContext); // Bring in my context
+    if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
+    const { setWeather, setTimezone, setModalOpen, setIsLoading } = context; // Pull out from context
 
-    const [isLoadingSmall, setIsLoadingSmall] = useState<boolean>(false);
+    const [isLoadingSmall, setIsLoadingSmall] = useState<boolean>(false); // Small loading spinner
 
     const modalRoot = document.getElementById("modal");
     if (!modalRoot) return null;
 
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const [searchResults, setsearchResults] = useState<{ [key: string]: any }[]>([]); // type: array of objects
+    const [searchResults, setSearchResults] = useState<{ [key: string]: any }[]>([]); // type: array of objects
 
+    // On form submit
     const formSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // console.log(searchTerm);
         setIsLoadingSmall(true);
         const results = await fetchWeatherByCityName(searchTerm);
         setIsLoadingSmall(false);
-        // console.log(results.results);
-        setsearchResults(results.results);
+        setSearchResults(results.results);
     };
 
     // Fetch weather/timezone for a place
@@ -46,6 +42,7 @@ const ModalWindow = ({ children }: { children: ReactNode }) => {
         >
             <div className="bg-black max-w-[750px] h-[500px] px-[10px] py-[70px] w-full text-center border border-gray-500 relative z-[100]">
                 <div className="text-white text-[34px] mb-[25px]">Search By City Name:</div>
+                {/* FORM */}
                 <form onSubmit={formSubmit} className="max-w-[400px] mx-auto relative">
                     <input
                         value={searchTerm}
@@ -54,14 +51,16 @@ const ModalWindow = ({ children }: { children: ReactNode }) => {
                         className="w-full text-[20px] p-[10px] cursor-pointer bg-transparent text-inherit font-inherit border border-white outline-none transition-shadow duration-300 focus:[box-shadow:0_0_10px_white]"
                         autoFocus
                     />
+
                     {/* RESULTS BOX BELOW */}
                     <div className="mt-[18px] w-full">
-                        {/* LOADING SPINNER */}
+                        {/* SMALL LOADING SPINNER */}
                         {isLoadingSmall && (
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-1/4">
                                 <img src={spinnerGif} className="w-[200px]" style={{ animation: "spin 0.5s linear infinite" }} />
                             </div>
                         )}
+
                         {/* RESULTS */}
                         {searchResults &&
                             searchResults.length > 0 &&
@@ -72,14 +71,17 @@ const ModalWindow = ({ children }: { children: ReactNode }) => {
                                     data-lat={result.latitude}
                                     data-lng={result.longitude}
                                     data-timezone={result.timezone}
-                                    title={`${result.name}, ${result.admin1}, ${result.country}`}
+                                    title={`${result.name}, ${result.admin1 ? result.admin1 + ", " : ""}${result.country}`}
                                     onClick={() => fetchForPlace(result.latitude, result.longitude)}
                                 >
-                                    {result.name}, {result.admin1}, {result.country}
+                                    {result.name}, {result.admin1 ? result.admin1 + ", " : ""}
+                                    {result.country}
                                 </div>
                             ))}
                     </div>
                 </form>
+
+                {/* CHILDREN ARE THE CLOSE BTN */}
                 <div>{children}</div>
             </div>
         </div>,

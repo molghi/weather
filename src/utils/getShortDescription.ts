@@ -1,3 +1,5 @@
+// Get short description to show in doc title
+
 function giveShortDescription(weathercode: number): string {
     let shortDesc = "";
 

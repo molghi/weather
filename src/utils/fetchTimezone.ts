@@ -22,8 +22,10 @@ async function fetchTimezone(
 
         const data = await response.json();
 
+        // Set loading spinner to false (hide)
         setIsLoading(false);
 
+        // Compose result object
         const myObj = {
             continent: data.results[0].components.continent,
             country: data.results[0].components.country,
@@ -41,9 +43,8 @@ async function fetchTimezone(
             },
         };
 
+        // Update state
         setTimezone(myObj);
-
-        // return myObj;
     } catch (error) {
         console.error(error);
         throw error;

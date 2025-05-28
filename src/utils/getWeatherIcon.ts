@@ -1,4 +1,4 @@
-// importing all necessary icons
+// Import all necessary icons
 import clearNight from "../img/weather-icons/clear-night.svg";
 import starryNight from "../img/weather-icons/starry-night.svg";
 import horizon from "../img/weather-icons/horizon.svg";
@@ -37,7 +37,9 @@ import partlyCloudyDayHail from "../img/weather-icons/partly-cloudy-day-hail.svg
 import hail from "../img/weather-icons/hail.svg";
 import overcast from "../img/weather-icons/overcast.svg";
 
-function getWeatherIcon(weathercode: number, dayTime: string) {
+// =======================================================================================
+
+function getWeatherIcon(weathercode: number, dayTime: string): string {
     const string = `${weathercode}_${dayTime}`;
 
     switch (string) {

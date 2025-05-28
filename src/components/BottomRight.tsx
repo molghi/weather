@@ -1,15 +1,12 @@
-import { useState, useContext } from "react";
+import { useContext } from "react";
 import ModalWindow from "./ModalWindow";
 import ModalMap from "./ModalMap";
 import MyContext from "../context/MyContext";
 
 const BottomRight = () => {
-    // Bring in my context
-    const context = useContext(MyContext);
-    // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
-    if (!context) throw new Error("MyContext must be used within a ContextProvider");
-    // Pull out from context
-    const { modalOpen, setModalOpen, mapOpen, setMapOpen } = context;
+    const context = useContext(MyContext); // Bring in my context
+    if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
+    const { modalOpen, setModalOpen, mapOpen, setMapOpen } = context; // Pull out from context
 
     return (
         <div data-name="BottomRight">

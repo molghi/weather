@@ -167,7 +167,6 @@ body {
 
 .dimmed {
     filter: blur(1px) brightness(30%);
-    /* filter: blur(1px) brightness(25%); */
 }
 
 /* ================================================================================================ */
@@ -189,6 +188,8 @@ body {
 }
 
 /* ================================================================================================ */
+
+/* LOADING SPINNER */
 
 .loader {
     width: 800px;
@@ -242,3 +243,37 @@ body {
         transform: rotate(360deg);
     }
 }
+
+@keyframes enlarge-smaller {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ================================================================================================ */
+
+/* BACKGROUND ANIMATION */
+
+/* @keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.animated-bg {
+    background: linear-gradient(270deg, rgb(56, 101, 140), #1e293b, #283048, #1e2a38, #182635, #000);
+    background-size: 600% 600%;
+    animation: gradientShift 10s ease infinite;
+} */

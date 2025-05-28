@@ -3,19 +3,23 @@ import MyContext from "../context/MyContext";
 import WeatherHour from "./WeatherHour";
 
 const WeatherHourly = () => {
-    // Bring in my context
-    const context = useContext(MyContext);
-    // Null-check before deconstructing -- guard against useContext(MyContext) returning undefined
-    if (!context) throw new Error("MyContext must be used within a ContextProvider");
-    // Pull out from context
-    const { weather, timezone, getLocationLocalTime, toLocalISOString, setTempUnits } = context;
+    const context = useContext(MyContext); // Bring in my context
+    if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
+    const { weather, timezone, getLocationLocalTime, toLocalISOString, setTempUnits } = context; // Pull out from context
 
+    // Get location date-time (type: date string)
     const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
-    const isoLikeLocal = toLocalISOString(locationDateTimeNow);
 
-    const nowIndexHourly = weather
+    // Get ISO like formatted string of location date-time
+    const isoLikeLocal: string = toLocalISOString(locationDateTimeNow);
+
+    // Get index of now in weather.hourly
+    const nowIndexHourly: number = weather
         ? weather.hourly.time.findIndex((entry: string) => entry.startsWith(isoLikeLocal.slice(0, 13)))
         : -1;
+
+    // Represents 6 upcoming hours
+    const amountOfHours: number = 6;
 
     return (
         <div>
@@ -24,8 +28,9 @@ const WeatherHourly = () => {
                 <div className="flex items-stretch justify-center gap-[30px]">
                     {/* HOUR ELEMENTS (6 UPCOMING HOURS) */}
 
-                    {Array.from({ length: 6 }, (_, i) => nowIndexHourly + 1 + i).map((x, i) => (
-                        <WeatherHour key={i} index={x} />
+                    {/* MAKE ARRAY, POPULATE WITH 6 ELEMENTS, EACH: THE INDEX OF THE NEXT HOUR IN hourly */}
+                    {Array.from({ length: amountOfHours }, (_, i) => nowIndexHourly + 1 + i).map((x, i) => (
+                        <WeatherHour key={i} index={x} indexZeroBase={i} />
                     ))}
                 </div>
             </div>

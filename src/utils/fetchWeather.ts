@@ -7,12 +7,19 @@ async function fetchWeather(
     setIsLoading: Dispatch<SetStateAction<boolean>>
 ) {
     try {
+        // Specify Hourly params
         const hourlyParams = `temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,weather_code,cloud_cover,visibility,wind_gusts_10m`;
-        const dailyParams = `weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,daylight_duration,sunshine_duration,uv_index_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant`;
-        const timezoneParams = `Europe%2FIstanbul`;
 
+        // Specify Daily params
+        const dailyParams = `weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,daylight_duration,sunshine_duration,uv_index_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant`;
+
+        // Specify timezone
+        const timezoneParams = encodeURIComponent("Europe/Istanbul");
+
+        // Specify URL
         const API_URL = `https://api.open-meteo.com/v1/forecast?latitude=${coordsArr[0]}&longitude=${coordsArr[1]}&hourly=${hourlyParams}&daily=${dailyParams}&current_weather=true&past_days=7&timezone=${timezoneParams}`;
 
+        // Set loading spinner to true
         setIsLoading(true);
 
         const response = await fetch(API_URL);
@@ -24,6 +31,7 @@ async function fetchWeather(
 
         const data = await response.json();
 
+        // Compose result object
         const myObj = {
             temp: data.current_weather.temperature,
             weathercode: data.current_weather.weathercode,
@@ -43,11 +51,11 @@ async function fetchWeather(
             },
         };
 
+        // Update state
         setWeather(myObj);
-        // return myObj;
     } catch (error) {
         console.error(error);
-        throw error; // rethrowing the error to catch further up the chain
+        throw error; // Rethrow the error to catch further up the chain
     }
 }
 

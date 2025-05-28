@@ -1,5 +1,9 @@
+// Get random number
 const getRandom = (maxValue: number): number => Math.floor(Math.random() * maxValue);
 
+// ===============================================================
+
+// Fetch background image
 async function fetchBgImage(query: string) {
     const UNSPLASH_KEY = import.meta.env.VITE_UNSPLASH_KEY;
 
@@ -38,7 +42,7 @@ async function fetchBgImage(query: string) {
             await fetch(URLs[9]),
         ]);
 
-        const res2 = await Promise.all([
+        const data = await Promise.all([
             await res[0].json(),
             await res[1].json(),
             await res[2].json(),
@@ -52,16 +56,16 @@ async function fetchBgImage(query: string) {
         ]);
 
         const results = [
-            ...res2[0].results,
-            ...res2[1].results,
-            ...res2[2].results,
-            ...res2[3].results,
-            ...res2[4].results,
-            ...res2[5].results,
-            ...res2[6].results,
-            ...res2[7].results,
-            ...res2[8].results,
-            ...res2[9].results,
+            ...data[0].results,
+            ...data[1].results,
+            ...data[2].results,
+            ...data[3].results,
+            ...data[4].results,
+            ...data[5].results,
+            ...data[6].results,
+            ...data[7].results,
+            ...data[8].results,
+            ...data[9].results,
         ].map((x) => x.urls.full); // unsplash
 
         // const results = data.photos.map((x) => x.src.original); // pexels

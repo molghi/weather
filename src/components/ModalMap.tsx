@@ -40,7 +40,7 @@ const ModalMap = ({ children }: { children: ReactNode }) => {
                     className="relative w-[1000px] h-[650px] flex items-center justify-center bg-black px-[10px] py-[70px] text-center border border-gray-500"
                     style={{ zIndex: 1000 }}
                 >
-                    <MapContainer center={position} zoom={6} scrollWheelZoom={true} style={{ height: "500px", width: "100%" }}>
+                    <MapContainer center={position} zoom={5} scrollWheelZoom={true} style={{ height: "500px", width: "100%" }}>
                         <TileLayer
                             attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -50,6 +50,7 @@ const ModalMap = ({ children }: { children: ReactNode }) => {
                         </Marker>
                         <RecenterMap position={position} coords={myCoords} />
                     </MapContainer>
+                    {/* CHILDREN ARE THE CLOSE BTN */}
                     <div>{children}</div>
                 </div>
             </div>

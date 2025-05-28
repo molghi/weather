@@ -3,196 +3,117 @@ import MyContext from "../context/MyContext";
 import interpretWeathercode from "../utils/interpretWeathercode";
 import getWeatherIcon from "../utils/getWeatherIcon";
 import convertTempUnits from "../utils/tempConversion";
-import { SavedLocationProps } from "../context/MyContext";
+import addToSaved from "../utils/addToSaved";
+import { primaryIcon, addIcon } from "../utils/icons";
+import updateSavedLocations from "../utils/updateSavedLocations";
 
 const WeatherTop = () => {
     const context = useContext(MyContext); // Bring in my context
     if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
     const {
-        coords,
         weather,
         timezone,
         getLocationLocalTime,
         toLocalISOString,
         tempUnits,
         setTempUnits,
-        savedLocations,
+        localStoragePrimaryLocationKey,
+        coords,
         setSavedLocations,
         localStorageSavedLocationsKey,
-        localStoragePrimaryLocationKey,
+        savedLocations,
     } = context; // Pull out from context
 
+    // Get location date-time (type: date string)
     const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
-    const isoLikeLocal = toLocalISOString(locationDateTimeNow);
 
-    // Get location hours-minutes
+    // Get ISO like formatted string of location date-time
+    const isoLikeLocal: string = toLocalISOString(locationDateTimeNow);
+
+    // Get location hours-minutes string
     const time: string = `${new Date(locationDateTimeNow).getHours()}:${new Date(locationDateTimeNow)
         .getMinutes()
         .toString()
         .padStart(2, "0")}`;
+
     // Get location date-time formatted string
     const dateTime: string = `${new Date(locationDateTimeNow).getDate()}/${(new Date(locationDateTimeNow).getMonth() + 1)
         .toString()
         .padStart(2, "0")}/${new Date(locationDateTimeNow).getFullYear()}  ̶ ${time}`;
 
-    const feelsLikeIndex = weather
+    // Get index of now in weather.hourly.time
+    const feelsLikeIndex: number = weather
         ? weather.hourly.time.findIndex((entry: string) => entry.startsWith(isoLikeLocal.slice(0, 13)))
         : -1;
 
-    const locationHoursNow = new Date(locationDateTimeNow).getHours();
-    let dayTime = ``;
-    switch (locationHoursNow) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-            dayTime = "Night";
-            break;
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-            dayTime = "Morning";
-            break;
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-            dayTime = "Day";
-            break;
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-            dayTime = "Evening";
-            break;
-    }
+    // Get hours in shown location
+    const locationHoursNow: number = new Date(locationDateTimeNow).getHours();
 
-    const description = interpretWeathercode(weather ? weather.weathercode : -1);
-    const icon = getWeatherIcon(weather ? weather.weathercode : -1, dayTime);
+    // Define time of the day (word)
+    let dayTime: string = "";
+    if (locationHoursNow >= 0 && locationHoursNow <= 5) dayTime = "Night";
+    if (locationHoursNow >= 6 && locationHoursNow <= 11) dayTime = "Morning";
+    if (locationHoursNow >= 12 && locationHoursNow <= 17) dayTime = "Day";
+    if (locationHoursNow >= 18 && locationHoursNow <= 23) dayTime = "Evening";
 
-    const [weatherMain, setWeatherMain] = useState<string>("?°C");
-    const [weatherFeelsLike, setWeatherFeelsLike] = useState<string>("Feels like ?°C");
+    // Get description string
+    const description: string = interpretWeathercode(weather ? weather.weathercode : -1);
 
+    // Get weather icon file path
+    const icon: string = getWeatherIcon(weather ? weather.weathercode : -1, dayTime);
+
+    const [weatherMain, setWeatherMain] = useState<number>(200);
+    const [weatherFeelsLike, setWeatherFeelsLike] = useState<number>(200);
+
+    // Convert to C/F (on tempUnits change)
     const changeTemp = (unitsNow: string) => {
         if (unitsNow === "C") {
-            const inFahrenheitMain = parseInt(weatherMain);
-            const inFahrenheitFeelsLike = parseInt(weatherFeelsLike.split(" ").slice(2).join(" "));
-            setWeatherMain(`${Math.round(convertTempUnits(inFahrenheitMain, "to C"))}°C`);
-            setWeatherFeelsLike(`Feels like ${Math.round(convertTempUnits(inFahrenheitFeelsLike, "to C"))}°C`);
+            setWeatherMain(convertTempUnits(weatherMain, "to C"));
+            setWeatherFeelsLike(convertTempUnits(weatherFeelsLike, "to C"));
         }
         if (unitsNow === "F") {
-            const inCelsiusMain = parseInt(weatherMain);
-            const inCelsiusFeelsLike = parseInt(weatherFeelsLike.split(" ").slice(2).join(" "));
-            setWeatherMain(`${Math.round(convertTempUnits(inCelsiusMain, "to F"))}°F`);
-            setWeatherFeelsLike(`Feels like ${Math.round(convertTempUnits(inCelsiusFeelsLike, "to F"))}°F`);
+            setWeatherMain(convertTempUnits(weatherMain, "to F"));
+            setWeatherFeelsLike(convertTempUnits(weatherFeelsLike, "to F"));
         }
     };
 
-    const convertAirTemp = () => {
-        // Convert to Celsius/Fahrenheit
-        setTempUnits((prev) => {
-            const unitsNow = prev === "C" ? "F" : "C";
-            return unitsNow;
-        });
-    };
+    // Happens on click: switch temp units, Celsius/Fahrenheit
+    const convertAirTemp = () => setTempUnits((prev) => (prev === "C" ? "F" : "C"));
 
-    // Add the currently shown location to your list
-    const addToSaved = () => {
-        const cityName = timezone?.city ?? "";
-
-        // Compose location object
-        const locationObj: SavedLocationProps = {
-            localTime:
-                `${new Date(locationDateTimeNow).getHours()}:${new Date(locationDateTimeNow)
-                    .getMinutes()
-                    .toString()
-                    .padStart(2, "0")}` ?? "",
-            localDateTime: dateTime,
-            cityName: cityName,
-            country: timezone?.country ?? "",
-            temp: Math.round(weather?.temp ?? 0) + "",
-            icon: icon ?? "",
-            coords: [String(timezone?.coords.lat ?? 0), String(timezone?.coords.lng ?? 0)],
-            feelsLikeTemp: weatherFeelsLike ?? "",
-            description: description ?? "",
-        };
-
-        // Check if location was already added before: if so, do not add but update
-        if (savedLocations?.map((x) => x.cityName).includes(cityName)) {
-            setSavedLocations((prev) => {
-                const newSavedLocations = prev.map((locObj) => {
-                    if (locObj.cityName === cityName) {
-                        locObj.localTime = locationObj.localTime;
-                        locObj.localDateTime = locationObj.localDateTime;
-                        locObj.temp = locationObj.temp;
-                        locObj.icon = locationObj.icon;
-                        locObj.feelsLikeTemp = locationObj.feelsLikeTemp;
-                        locObj.description = locationObj.description;
-                    }
-                    return locObj;
-                });
-                localStorage.setItem(localStorageSavedLocationsKey, JSON.stringify(newSavedLocations));
-                return newSavedLocations;
-            });
-            return;
-        }
-
-        if (savedLocations && savedLocations.length === 12)
-            return window.alert("You cannot have more than 12 saved locations.\nRemove one to add another.");
-
-        // Update state and local storage
-        setSavedLocations((prev) => {
-            const newSavedLocations = [...prev, locationObj];
-            localStorage.setItem(localStorageSavedLocationsKey, JSON.stringify(newSavedLocations));
-            return newSavedLocations;
-        });
-    };
-
-    // Make the currently shown location your primary
+    // Make currently shown location your primary (means it will be shown on the next app start)
     const makePrimary = () => {
         const coords = [timezone?.coords.lat ?? 0, timezone?.coords.lng ?? 0];
         localStorage.setItem(localStoragePrimaryLocationKey, JSON.stringify(coords));
     };
 
     useEffect(() => {
-        if (weather) {
-            setWeatherMain(`${Math.round(weather.temp)}°C`);
-            setWeatherFeelsLike(`Feels like ${Math.round(weather.hourly.apparent_temperature[feelsLikeIndex])}°C`);
+        // Set air temperature
+        if (weather?.temp !== null) {
+            const tempMain = Number(weather?.temp);
+            const tempFeelsLike = Number(weather?.hourly.apparent_temperature[feelsLikeIndex]);
+            if (!isNaN(tempMain)) setWeatherMain(tempMain);
+            else setWeatherMain(0);
+            if (!isNaN(tempFeelsLike)) setWeatherFeelsLike(tempFeelsLike);
+            else setWeatherFeelsLike(0);
         }
-        if (coords && coords.length > 0) {
-            // Update Saved Location
-            setSavedLocations((prev) => {
-                const newLocs = prev.map((loc) => {
-                    if (loc.coords[0] === String(timezone?.coords.lat) && loc.coords[1] === String(timezone?.coords.lng)) {
-                        return {
-                            ...loc,
-                            localTime: time,
-                            localDateTime: dateTime,
-                            temp: weatherMain.slice(0, -2),
-                            icon,
-                            feelsLikeTemp: weatherFeelsLike,
-                            description,
-                        };
-                    }
-                    return loc;
-                });
-                localStorage.setItem(localStorageSavedLocationsKey, JSON.stringify(newLocs));
-                return newLocs;
-            });
-        }
+
+        // Update Saved Location
+        updateSavedLocations(
+            weatherMain,
+            time,
+            dateTime,
+            icon,
+            weatherFeelsLike,
+            description,
+            coords,
+            timezone,
+            setSavedLocations,
+            localStorageSavedLocationsKey
+        );
     }, [weather, timezone]);
 
     useEffect(() => {
-        changeTemp(tempUnits);
+        if (weatherMain !== 200) changeTemp(tempUnits);
     }, [tempUnits]);
 
     // ==============================================================================================
@@ -206,43 +127,75 @@ const WeatherTop = () => {
                     title="Click to convert to Celsius/Fahrenheit"
                     onClick={() => convertAirTemp()}
                 >
-                    <span className="text-[80px] font-bold">{weatherMain}</span>
-                    <span className="tracking-[1px] -mt-[3px] opacity-60">{weatherFeelsLike}</span>
+                    <span
+                        className="text-[80px] font-bold hover:scale-105 transition-all duration-300" /*style={{ animation: "enlarge 6s linear infinite" }}*/
+                    >
+                        {weatherMain === 200 ? (
+                            "?"
+                        ) : (
+                            <span>
+                                {Math.round(weatherMain)}°{tempUnits}
+                            </span>
+                        )}
+                    </span>
+                    <span
+                        className="tracking-[1px] -mt-[3px] opacity-60 hover:scale-105 transition-all duration-300" /*style={{ animation: "enlarge 6s linear 1s infinite" }}*/
+                    >
+                        {weatherFeelsLike === 200 ? (
+                            "?"
+                        ) : (
+                            <span>
+                                Feels like {Math.round(weatherFeelsLike)}°{tempUnits}
+                            </span>
+                        )}
+                    </span>
                 </div>
 
                 {/* ICON */}
-                <div className="w-[130px] h-[130px]">
+                <div
+                    className="w-[130px] h-[130px] hover:scale-105 transition-all duration-300" /*style={{ animation: "enlarge 6s linear 2s infinite" }}*/
+                >
                     <img src={icon} />
                 </div>
 
                 {/* DESCRIPTION */}
-                <div className="flex-[1_1_100%] text-[22px]">{description}</div>
+                <div
+                    className="flex-[1_1_100%] text-[22px] hover:scale-105 transition-all duration-300" /*style={{ animation: "enlarge-smaller 6s linear 3s infinite" }}*/
+                >
+                    {description}
+                </div>
 
                 {/* BTNS */}
                 <div className="flex items-center gap-[10px] absolute top-0 right-[15%]">
+                    {/* MAKE PRIMARY BTN */}
                     <button
                         onClick={() => makePrimary()}
                         title="Make this your primary location"
                         className="w-[39px] p-[10px] opacity-20 transition-all duration-200 hover:opacity-100"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                            <path
-                                className="fill-white"
-                                d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"
-                            ></path>
-                        </svg>
+                        {primaryIcon}
                     </button>
+
+                    {/* ADD TO SAVED BTN */}
                     <button
-                        onClick={() => addToSaved()}
+                        onClick={() =>
+                            addToSaved(
+                                locationDateTimeNow,
+                                dateTime,
+                                icon,
+                                weatherFeelsLike,
+                                description,
+                                weather,
+                                timezone,
+                                savedLocations,
+                                setSavedLocations,
+                                localStorageSavedLocationsKey
+                            )
+                        }
                         title="Add this location to your list"
                         className="w-[38px] p-[10px] opacity-20 transition-all duration-200 hover:opacity-100"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                            <path
-                                className="fill-white"
-                                d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zM200 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-                            ></path>
-                        </svg>
+                        {addIcon}
                     </button>
                 </div>
             </div>
