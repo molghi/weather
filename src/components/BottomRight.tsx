@@ -12,7 +12,7 @@ const BottomRight = () => {
         <div data-name="BottomRight">
             {/* CHANGE LOCATION */}
             <button
-                className="absolute bottom-[10px] right-[10px] border border-white p-[10px] opacity-20 transition-all duration-300 hover:bg-white hover:opacity-100 hover:text-black hover:shadow-[0_0_7px_white]"
+                className="fixed bottom-[10px] right-[10px] border border-white p-[10px] opacity-20 transition-all duration-300 hover:bg-white hover:opacity-100 hover:text-black hover:shadow-[0_0_7px_white]"
                 style={{ zIndex: 100 }}
                 onClick={() => setModalOpen(true)}
             >
@@ -21,7 +21,7 @@ const BottomRight = () => {
 
             {/* SEE WORLD MAP */}
             <button
-                className="absolute bottom-[18px] right-[180px] p-0 m-0 border-none opacity-20 w-[20px] transition-all duration-300 hover:opacity-100"
+                className="fixed bottom-[18px] right-[180px] p-0 m-0 border-none opacity-20 w-[20px] transition-all duration-300 hover:opacity-100"
                 title="Show world map"
                 style={{ zIndex: 100 }}
                 onClick={() => setMapOpen(true)}

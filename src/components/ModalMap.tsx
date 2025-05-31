@@ -33,7 +33,7 @@ const ModalMap = ({ children }: { children: ReactNode }) => {
     return (
         <div>
             <div
-                className="absolute top-0 left-0 z-50 bg-black/80 w-full h-full flex items-center justify-center px-5"
+                className="fixed top-0 left-0 z-50 bg-black/80 w-full h-full flex items-center justify-center px-5"
                 style={{ zIndex: 1000 }}
             >
                 <div
@@ -41,9 +41,13 @@ const ModalMap = ({ children }: { children: ReactNode }) => {
                     style={{ zIndex: 1000 }}
                 >
                     <MapContainer center={position} zoom={5} scrollWheelZoom={true} style={{ height: "500px", width: "100%" }}>
-                        <TileLayer
+                        {/* <TileLayer
                             attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        /> */}
+                        <TileLayer
+                            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
                         />
                         <Marker position={markerPosition} icon={L.icon({ iconUrl, iconSize: [25, 41], iconAnchor: [12, 41] })}>
                             <Popup>Your location</Popup>

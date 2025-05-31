@@ -40,13 +40,7 @@ const WeatherDay = ({ index, dayIndex }: WeatherDayProps) => {
     };
 
     // Happens on click: switch temp units, Celsius/Fahrenheit
-    const convertAirTemp = () => {
-        // Convert to Celsius/Fahrenheit
-        setTempUnits((prev) => {
-            const unitsNow = prev === "C" ? "F" : "C";
-            return unitsNow;
-        });
-    };
+    const convertAirTemp = () => setTempUnits((prev) => (prev === "C" ? "F" : "C"));
 
     // Set air temperature
     useEffect(() => {
@@ -70,24 +64,31 @@ const WeatherDay = ({ index, dayIndex }: WeatherDayProps) => {
 
     // Define sunrise and sunset times
     const rawTimeSunrise = weather?.daily.sunrise[dayIndex]; // Original local ISO time string (no timezone)
-    const dtSunrise = DateTime.fromISO(rawTimeSunrise).setZone(timezone?.timezone.name); // Parse as if it were local to a specific timezone
+    const dtSunrise = DateTime.fromISO(rawTimeSunrise); //.setZone(timezone?.timezone.name); // Parse as if it were local to a specific timezone
     const sunriseTime = dtSunrise.toFormat("HH:mm"); // Format as needed
 
     const rawTimeSunset = weather?.daily.sunset[dayIndex]; // Original local ISO time string (no timezone)
-    const dtSunset = DateTime.fromISO(rawTimeSunset).setZone(timezone?.timezone.name); // Parse as if it were local to a specific timezone
+    const dtSunset = DateTime.fromISO(rawTimeSunset); //.setZone(timezone?.timezone.name); // Parse as if it were local to a specific timezone
     const sunsetTime = dtSunset.toFormat("HH:mm"); // Format as needed
+
+    // const sunriseTimestamp = timezone ? timezone.sun.rise.apparent * 1000 : 0;
+    // const dt: any = DateTime.fromMillis(sunriseTimestamp, { zone: timezone?.timezone.name });
+    // const sunsetTimestamp = timezone ? timezone.sun.set.apparent * 1000 : 0;
+    // const dt2: any = DateTime.fromMillis(sunsetTimestamp, { zone: timezone?.timezone.name });
+    // const sunriseTime = dt.c.hour + ":" + dt.c.minute.toString().padStart(2, "0");
+    // const sunsetTime = dt2.c.hour + ":" + dt2.c.minute.toString().padStart(2, "0");
 
     // ==============================================================================================
 
     return (
         <div
-            className="flex flex-col flex-[1_1_33.3333333333%] transition-all duration-300 p-[10px] rounded-[10px] leading-[1] shadow-[inset_0_0_1px_white] hover:bg-white/10 hover:scale-110 transition-transform hover:backdrop-blur-sm"
+            className="flex flex-col flex-[1_1_33.3333333333%] transition-all duration-300 p-[10px] rounded-[10px] leading-[1] shadow-[inset_0_0_1px_white] hover:bg-white/10 hover:scale-110 transition-transform hover:backdrop-blur-sm [@media(max-width:1030px)]:min-w-[315px]"
             // style={{ animation: `enlarge-smaller 5s linear ${index + 2}s infinite` }}
         >
             {/* DAY IT WILL BE */}
             <div className="mb-[5px] opacity-50">
                 {dayNames[index]} ({new Date(weather?.daily.time[dayIndex]).getDate()}/
-                {(new Date(weather?.daily.time[dayIndex]).getMonth() + 1).toString().padStart(2, "0")}/
+                {new Date(weather?.daily.time[dayIndex]).getMonth() + 1}/
                 {new Date(weather?.daily.time[dayIndex]).getFullYear().toString().slice(2)})
             </div>
 
@@ -110,7 +111,7 @@ const WeatherDay = ({ index, dayIndex }: WeatherDayProps) => {
             <div
                 className="mb-[5px] italic text-[12px] h-[28px] overflow-hidden text-ellipsis 
        [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
-                title="Mainly clear, partly cloudy, and overcast"
+                title={interpretWeathercode(weather?.daily.weather_code[dayIndex])}
             >
                 {interpretWeathercode(weather?.daily.weather_code[dayIndex])}
             </div>

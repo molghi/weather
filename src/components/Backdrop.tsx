@@ -25,7 +25,7 @@ const Backdrop = () => {
     }, [weather, timezone]);
 
     return (
-        <div data-name="Backdrop" className="relative transition-all duration-1000 fadeIn" style={{ zIndex: -100 }}>
+        <div data-name="Backdrop" className="transition-all duration-1000 fadeIn fixed w-full h-full" style={{ zIndex: -100 }}>
             <img
                 draggable="false"
                 src={imgPath}

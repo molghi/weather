@@ -25,7 +25,7 @@ const WeatherHourly = () => {
         <div>
             <div className="mb-[30px]">
                 <div className="text-[20px] mb-[10px]">Hourly</div>
-                <div className="flex items-stretch justify-center gap-[30px]">
+                <div className="flex items-stretch justify-center gap-[30px] [@media(max-width:1030px)]:flex-wrap">
                     {/* HOUR ELEMENTS (6 UPCOMING HOURS) */}
 
                     {/* MAKE ARRAY, POPULATE WITH 6 ELEMENTS, EACH: THE INDEX OF THE NEXT HOUR IN hourly */}

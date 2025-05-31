@@ -9,7 +9,7 @@ import spinnerGif from "../img/spin2.png";
 const ModalWindow = ({ children }: { children: ReactNode }) => {
     const context = useContext(MyContext); // Bring in my context
     if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
-    const { setWeather, setTimezone, setModalOpen, setIsLoading } = context; // Pull out from context
+    const { setWeather, timezone, setTimezone, setModalOpen, setIsLoading } = context; // Pull out from context
 
     const [isLoadingSmall, setIsLoadingSmall] = useState<boolean>(false); // Small loading spinner
 
@@ -31,17 +31,17 @@ const ModalWindow = ({ children }: { children: ReactNode }) => {
     // Fetch weather/timezone for a place
     const fetchForPlace = async (lat: number, lng: number) => {
         setModalOpen(false);
-        await fetchWeather([lat, lng], setWeather, setIsLoading);
-        await fetchTimezone([lat, lng], setTimezone, setIsLoading);
+        const timezoneName: string = await fetchTimezone([lat, lng], setTimezone, setIsLoading);
+        await fetchWeather([lat, lng], setWeather, setIsLoading, timezoneName);
     };
 
     return ReactDOM.createPortal(
         <div
-            className="absolute top-0 left-0 z-50 bg-black/80 w-full h-full flex items-center justify-center"
+            className="fixed top-0 left-0 z-50 bg-black/80 w-full h-full flex items-center justify-center"
             style={{ zIndex: 1000 }}
         >
-            <div className="bg-black max-w-[750px] h-[500px] px-[10px] py-[70px] w-full text-center border border-gray-500 relative z-[100]">
-                <div className="text-white text-[34px] mb-[25px]">Search By City Name:</div>
+            <div className="bg-black max-w-[750px] h-[500px] px-[10px] py-[70px] w-full text-center border border-gray-500 relative z-[100] [@media(max-width:800px)]:max-w-[93%]">
+                <div className="text-white text-[34px] mb-[25px] [@media(max-width:450px)]:text-[25px]">Search By City Name:</div>
                 {/* FORM */}
                 <form onSubmit={formSubmit} className="max-w-[400px] mx-auto relative">
                     <input

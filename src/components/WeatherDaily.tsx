@@ -24,7 +24,7 @@ const WeatherDaily = () => {
     return (
         <div>
             <div className="text-[20px] mb-[10px]">Daily</div>
-            <div className="flex items-stretch justify-center gap-[30px]">
+            <div className="flex items-stretch justify-center gap-[30px] [@media(max-width:1030px)]:flex-col [@media(max-width:1030px)]:items-center">
                 {/* DAY ELEMENTS: 3 UPCOMING DAYS */}
 
                 {/* MAKE ARRAY, POPULATE WITH 3 ELEMENTS, EACH: THE INDEX OF THE NEXT DAY IN daily */}

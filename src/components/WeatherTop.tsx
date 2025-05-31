@@ -24,6 +24,19 @@ const WeatherTop = () => {
         savedLocations,
     } = context; // Pull out from context
 
+    // Check screen width
+    const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
+    useEffect(() => {
+        function handleResize() {
+            setScreenWidth(window.innerWidth);
+        }
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    let positionClasses = screenWidth >= 1330 ? "" : "right-[20%]";
+    if (screenWidth < 860) positionClasses = "right-[15%] top-[-10%]";
+    if (screenWidth < 500) positionClasses += " right-[0%] top-[-15%]";
+
     // Get location date-time (type: date string)
     const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
 
@@ -166,7 +179,7 @@ const WeatherTop = () => {
                 </div>
 
                 {/* BTNS */}
-                <div className="flex items-center gap-[10px] absolute top-0 right-[15%]">
+                <div className={`flex items-center gap-[10px] absolute top-0 right-[15%] ${positionClasses}`}>
                     {/* MAKE PRIMARY BTN */}
                     <button
                         onClick={() => makePrimary()}

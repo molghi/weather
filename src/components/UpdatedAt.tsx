@@ -13,10 +13,14 @@ const UpdatedAt = () => {
         <div
             data-name="UpdatedAt"
             style={{ zIndex: 100 }}
-            className="opacity-20 text-[14px] absolute bottom-[10px] left-[10px] transition-all duration-300 hover:opacity-100"
+            className="opacity-20 text-[14px] fixed bottom-[10px] left-[10px] transition-all duration-300 hover:opacity-100"
             title={`Updated at ${dateTime} (your local time)`}
         >
-            <span>Updated at</span> <span>{time}</span>
+            {time && time !== "undefined" && (
+                <>
+                    <span>Updated at</span> <span>{time}</span>
+                </>
+            )}
         </div>
     );
 };

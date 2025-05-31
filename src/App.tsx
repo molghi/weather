@@ -4,7 +4,7 @@ import Weather from "./components/Weather";
 import BottomRight from "./components/BottomRight";
 import UpdatedAt from "./components/UpdatedAt";
 import SavedLocations from "./components/SavedLocations";
-import { useEffect, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import MyContext from "./context/MyContext";
 import fetchWeather from "./utils/fetchWeather";
 import fetchTimezone from "./utils/fetchTimezone";
@@ -30,9 +30,9 @@ function App() {
 
     useEffect(() => {
         // Fetch weather and timezone
-        const fetchIt = () => {
-            fetchWeather(coords, setWeather, setIsLoading);
-            fetchTimezone(coords, setTimezone, setIsLoading);
+        const fetchIt = async () => {
+            const timezoneName: string = await fetchTimezone(coords, setTimezone, setIsLoading);
+            await fetchWeather(coords, setWeather, setIsLoading, timezoneName);
             const primaryFromLS = localStorage.getItem(localStoragePrimaryLocationKey);
             if (!primaryFromLS) localStorage.setItem(localStoragePrimaryLocationKey, JSON.stringify(coords));
         };
@@ -59,9 +59,9 @@ function App() {
             <Backdrop />
             <TopLeft />
             {weather && <Weather />}
+            {savedLocations && savedLocations.length > 0 && <SavedLocations />}
             <UpdatedAt />
             <BottomRight />
-            {savedLocations && savedLocations.length > 0 && <SavedLocations />}
 
             {isLoading && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">

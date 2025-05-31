@@ -12,7 +12,7 @@ const Weather = () => {
     }, []);
 
     return (
-        <div data-name="Weather" className="max-w-[1000px] mx-auto">
+        <div data-name="Weather" className="max-w-[1000px] mx-auto [@media(max-width:1020px)]:px-6">
             <WeatherTop />
             <WeatherMiddle />
             <WeatherHourly />

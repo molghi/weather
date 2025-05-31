@@ -102,22 +102,23 @@ interface ContextProviderProps {
 
 // Context
 export const ContextProvider = ({ children }: ContextProviderProps) => {
-    const localStoragePrimaryLocationKey = "weather_primary_location";
-    const localStorageSavedLocationsKey = "weather_saved_locations";
-    const savedFromLS = localStorage.getItem(localStorageSavedLocationsKey);
-    const primaryFromLS = localStorage.getItem(localStoragePrimaryLocationKey);
+    const localStoragePrimaryLocationKey: string = "weather_primary_location";
+    const localStorageSavedLocationsKey: string = "weather_saved_locations";
+    const savedFromLS: string | null = localStorage.getItem(localStorageSavedLocationsKey);
+    const primaryFromLS: string | null = localStorage.getItem(localStoragePrimaryLocationKey);
 
-    const [coords, setCoords] = useState<[number, number]>(
-        primaryFromLS ? JSON.parse(primaryFromLS) : [47.6061255, -122.3321268]
-    );
+    const seattleCoords = [47.6061255, -122.3321268];
+
+    const [coords, setCoords] = useState<[number, number]>(primaryFromLS ? JSON.parse(primaryFromLS) : seattleCoords);
     const [weather, setWeather] = useState<WeatherObject | null>(null);
     const [timezone, setTimezone] = useState<TimezoneObject | null>(null);
     const [tempUnits, setTempUnits] = useState<string>("C"); // C for Celsius, F for Fahrenheit
     const [savedLocations, setSavedLocations] = useState<SavedLocationProps[]>(savedFromLS ? JSON.parse(savedFromLS) : []);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [mapOpen, setMapOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [mapOpen, setMapOpen] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    // Get location local time
     const getLocationLocalTime = (offsetSeconds: number): Date => {
         if (!offsetSeconds) return new Date();
         const nowUTC = new Date();
@@ -125,6 +126,7 @@ export const ContextProvider = ({ children }: ContextProviderProps) => {
         return new Date(utcMillis + offsetSeconds * 1000);
     };
 
+    // Format to local ISO like string
     const toLocalISOString = (date: Date): string => {
         const padIt = (num: number) => num.toString().padStart(2, "0");
         const year = date.getFullYear();
@@ -136,6 +138,7 @@ export const ContextProvider = ({ children }: ContextProviderProps) => {
         return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
     };
 
+    // Format sunshine/daylight duration
     const formatDuration = (seconds: number): string => {
         const totalMinutes = Math.floor(seconds / 60);
         const hours = Math.floor(totalMinutes / 60);

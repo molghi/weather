@@ -15,6 +15,19 @@ const TopLeft = () => {
         return () => clearInterval(timer);
     }, []);
 
+    // Check screen width
+    const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
+    useEffect(() => {
+        function handleResize() {
+            setScreenWidth(window.innerWidth);
+        }
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    let positionClasses = screenWidth >= 950 ? "absolute z-10 top-[10px] left-[10px]" : "pt-4 text-center mx-auto";
+    let positionClassesTimeBox = screenWidth >= 950 ? "" : "justify-center";
+    if (screenWidth < 500) positionClasses += " mb-10";
+
     // Get location date-time now (type: date string)
     const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
 
@@ -48,9 +61,9 @@ const TopLeft = () => {
         .padStart(2, "0")}`;
 
     // Get location date-time formatted string
-    const dateTime: string = `${new Date(locationDateTimeNow).getDate()}/${(new Date(locationDateTimeNow).getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}/${new Date(locationDateTimeNow).getFullYear()}  ̶ ${time}`;
+    const dateTime: string = `${new Date(locationDateTimeNow).getDate()}/${
+        new Date(locationDateTimeNow).getMonth() + 1
+    }/${new Date(locationDateTimeNow).getFullYear().toString().slice(-2)}  ̶ ${time}`;
 
     // Define sunrise/sunset block
     const [sunword, sunTime, sunIn]: [string, string, string] = defineSuntime(
@@ -69,10 +82,10 @@ const TopLeft = () => {
     // ============================================================================================================
 
     return (
-        <div data-name="TopLeft" className="max-w-[1400px] mx-auto absolute z-10 top-[10px] left-[10px] leading-none">
+        <div data-name="TopLeft" className={`max-w-[1400px] mx-auto leading-none ${positionClasses}`}>
             {/* TITLE */}
             <h1 className="text-[20px] opacity-30 mb-[10px] transition-all duration-200 hover:opacity-100">Weather Control</h1>
-            <div className="flex items-center gap-x-[15px] mb-[10px]">
+            <div className={`flex items-center gap-x-[15px] mb-[10px] ${positionClassesTimeBox}`}>
                 {/* TIME OF THE DAY */}
                 <div title={`Good ${dayTime}, ${timezone?.country}!`}>{dayTime}</div>
 
@@ -88,10 +101,10 @@ const TopLeft = () => {
             </div>
 
             {/* SUNRISE / SUNSET TIME */}
-            {/* <div className="flex items-center gap-x-[5px] opacity-30 text-[14px] transition-all duration-300 hover:opacity-100">
+            <div className="flex items-center gap-x-[5px] opacity-30 text-[14px] transition-all duration-300 hover:opacity-100">
                 <div>{sunword}:</div>
                 <div title={sunTime}>{sunIn}</div>
-            </div> */}
+            </div>
         </div>
     );
 };

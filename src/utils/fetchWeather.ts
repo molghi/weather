@@ -4,7 +4,8 @@ import { WeatherObject } from "../context/MyContext";
 async function fetchWeather(
     coordsArr: [number, number],
     setWeather: Dispatch<SetStateAction<WeatherObject | null>>,
-    setIsLoading: Dispatch<SetStateAction<boolean>>
+    setIsLoading: Dispatch<SetStateAction<boolean>>,
+    timezone: string
 ) {
     try {
         // Specify Hourly params
@@ -14,15 +15,15 @@ async function fetchWeather(
         const dailyParams = `weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,daylight_duration,sunshine_duration,uv_index_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant`;
 
         // Specify timezone
-        const timezoneParams = encodeURIComponent("Europe/Istanbul");
+        const timezoneParams = encodeURIComponent(timezone);
 
         // Specify URL
         const API_URL = `https://api.open-meteo.com/v1/forecast?latitude=${coordsArr[0]}&longitude=${coordsArr[1]}&hourly=${hourlyParams}&daily=${dailyParams}&current_weather=true&past_days=7&timezone=${timezoneParams}`;
 
-        // Set loading spinner to true
-        setIsLoading(true);
-
         const response = await fetch(API_URL);
+
+        // Set loading spinner to false
+        setIsLoading(false);
 
         if (!response.ok) {
             console.error("💥💥💥 Weather fetch response not OK:", response.status, response.statusText);

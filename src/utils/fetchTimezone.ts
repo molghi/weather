@@ -11,9 +11,12 @@ async function fetchTimezone(
 
         const API_KEY = import.meta.env.VITE_TIMEZONE_API_KEY;
 
-        const API__URL = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${API_KEY}`;
+        const API_URL = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${API_KEY}`;
 
-        const response = await fetch(API__URL);
+        // Set loading spinner to true (show)
+        setIsLoading(true);
+
+        const response = await fetch(API_URL);
 
         if (!response.ok) {
             console.error("💥💥💥 Timezone fetch response not OK:", response.status, response.statusText);
@@ -21,9 +24,6 @@ async function fetchTimezone(
         }
 
         const data = await response.json();
-
-        // Set loading spinner to false (hide)
-        setIsLoading(false);
 
         // Compose result object
         const myObj = {
@@ -45,6 +45,8 @@ async function fetchTimezone(
 
         // Update state
         setTimezone(myObj);
+
+        return myObj.timezone.name;
     } catch (error) {
         console.error(error);
         throw error;

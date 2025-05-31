@@ -7,10 +7,10 @@ const WeatherMiddle = () => {
     const { weather, timezone, getLocationLocalTime, toLocalISOString, formatDuration } = context; // Pull out from context
 
     // Define region and coords strings (for Location)
-    const region: string = `${timezone ? timezone.continent : ""}, Terra`;
-    const coords: string = `${timezone ? timezone.coords.lat.toFixed(2) : ""}° N, ${
-        timezone ? timezone.coords.lng.toFixed(2) : ""
-    }° E`;
+    const region: string = `${timezone ? timezone.continent + ", " : ""}Terra`;
+    const coords: string = `${timezone ? timezone.coords.lat.toFixed(2) + "° N, " : ""}${
+        timezone ? timezone.coords.lng.toFixed(2) + "° E" : ""
+    }`;
 
     // Get location date-time (type: date string)
     const locationDateTimeNow: Date = getLocationLocalTime(timezone ? timezone.timezone.offset_sec : 0);
@@ -28,7 +28,7 @@ const WeatherMiddle = () => {
         ? weather.daily.time.findIndex((entry: string) => entry.startsWith(isoLikeLocal.slice(0, 10)))
         : -1;
 
-    // Interpret wind direction (string)
+    // Interpret wind direction
     const getWindDirection = (degrees: number): string => {
         if (degrees === -1) return "";
         const directions = ["North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest"];
@@ -42,31 +42,39 @@ const WeatherMiddle = () => {
         <div>
             <div className="mb-[25px]">
                 {/* LOCATION */}
-                <div
-                    className="text-[22px] text-center mb-[25px] flex gap-[17px] items-center justify-center hover:scale-105 transition-all duration-300"
-                    // style={{ animation: "enlarge-smaller 6s linear 4s infinite" }}
-                    title={timezone && !timezone.city ? "*Location name is approximate" : ""}
-                >
-                    <span className="opacity-50">Location:</span>
-                    <span className="whitespace-nowrap">
-                        {/* CITY */}
-                        {timezone && timezone.city
-                            ? timezone.city
-                            : timezone?.timezone.name.split("/").slice(-1).join("").replaceAll("_", " ") + "*"}
-                        ,{" "}
-                        <span className="relative">
-                            {/* COUNTRY */}
-                            {timezone && timezone.country}
-                            <span className="absolute top-[-17px] right-[-20px] text-[20px] rotate-and-rest">
-                                {/* FLAG ICON */}
-                                {timezone && timezone.flag}
+                {timezone && (
+                    <div
+                        className="text-[22px] text-center mb-[25px] flex gap-[17px] items-center justify-center hover:scale-105 transition-all duration-300 [@media(max-width:1330px)]:flex-wrap"
+                        // style={{ animation: "enlarge-smaller 6s linear 4s infinite" }}
+                        title={timezone && !timezone.city ? "*Location name is approximate" : ""}
+                    >
+                        <div className="flex gap-[17px] [@media(max-width:600px)]:flex-wrap">
+                            <span className="opacity-50 [@media(max-width:600px)]:flex-1 [@media(max-width:600px)]:basis-full [@media(max-width:600px)]:mb-4">
+                                Location:
                             </span>
+                            <span className="whitespace-nowrap [@media(max-width:600px)]:flex-1 [@media(max-width:600px)]:basis-full [@media(max-width:600px)]:whitespace-normal">
+                                {/* CITY */}
+                                {timezone && timezone.city
+                                    ? timezone.city
+                                    : timezone?.timezone.name.split("/").slice(-1).join("").replaceAll("_", " ") + "*"}
+                                ,{" "}
+                                <span className="relative">
+                                    {/* COUNTRY */}
+                                    {timezone && timezone.country}
+                                    <span className="absolute top-[-17px] right-[-20px] text-[20px] rotate-and-rest">
+                                        {/* FLAG ICON */}
+                                        {timezone && timezone.flag}
+                                    </span>
+                                </span>
+                                {/* REGION */}, {region}
+                            </span>
+                        </div>
+                        {/* COORDS */}
+                        <span className="opacity-30 text-[20px] transition-all duration-300 whitespace-nowrap [@media(max-width:1330px)]:flex-1 [@media(max-width:1330px)]:basis-full">
+                            ({coords})
                         </span>
-                        {/* REGION */}, {region}
-                    </span>
-                    {/* COORDS */}
-                    <span className="opacity-30 text-[20px] transition-all duration-300 whitespace-nowrap">({coords})</span>
-                </div>
+                    </div>
+                )}
 
                 {/* PRECIPITATION PROBABILITY */}
                 <div
@@ -80,7 +88,7 @@ const WeatherMiddle = () => {
                     </span>
                 </div>
 
-                <div className="flex justify-center gap-[50px] ">
+                <div className="flex justify-center gap-[50px] [@media(max-width:600px)]:flex-col [@media(max-width:600px)]:gap-[25px] [@media(max-width:600px)]:items-center">
                     <div className="weather__col">
                         {/* WIND SPEED & DIRECTION */}
                         <div

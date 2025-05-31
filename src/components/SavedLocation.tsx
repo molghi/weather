@@ -7,15 +7,16 @@ import fetchTimezone from "../utils/fetchTimezone";
 const SavedLocation = ({ location }: { location: SavedLocationProps }) => {
     const context = useContext(MyContext); // Bring in my context
     if (!context) throw new Error("MyContext must be used within a ContextProvider"); // Null-check before deconstructing -- guard against useContext(MyContext) returning undef
-    const { setSavedLocations, localStorageSavedLocationsKey, setWeather, setTimezone, setIsLoading, setTempUnits } = context; // Pull out from context
+    const { setSavedLocations, localStorageSavedLocationsKey, setWeather, setTimezone, setIsLoading, setTempUnits, timezone } =
+        context; // Pull out from context
 
     // Fetch weather/timezone for this location
     const handleClick = async (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const target = e.target as HTMLElement; // Type assertion: treat generic e.target as HTMLElement
         if (target.tagName !== "BUTTON") {
             const coords = location.coords.map((x) => +x);
-            await fetchWeather([coords[0], coords[1]], setWeather, setIsLoading);
-            await fetchTimezone([coords[0], coords[1]], setTimezone, setIsLoading);
+            const timezoneName: string = await fetchTimezone([coords[0], coords[1]], setTimezone, setIsLoading);
+            await fetchWeather([coords[0], coords[1]], setWeather, setIsLoading, timezoneName);
             setTempUnits("C");
         }
     };

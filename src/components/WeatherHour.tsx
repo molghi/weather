@@ -51,7 +51,7 @@ const WeatherHour = ({ index, indexZeroBase }: WeatherHourProps) => {
     return (
         <>
             <div
-                className="flex flex-col flex-[1_1_16.666667%] transition-all duration-300 p-[10px] rounded-[10px] leading-[1] shadow-[inset_0_0_1px_white] hover:bg-white/10 hover:scale-110 transition-transform hover:backdrop-blur-sm"
+                className="flex flex-col flex-[1_1_16.666667%] transition-all duration-300 p-[10px] rounded-[10px] leading-[1] shadow-[inset_0_0_1px_white] hover:bg-white/10 hover:scale-110 transition-transform hover:backdrop-blur-sm [@media(max-width:1030px)]:flex-[1_1_25%] [@media(max-width:600px)]:flex-[1_1_47%]"
                 // style={{ animation: `enlarge 6s linear ${indexZeroBase + 1}s infinite` }}
             >
                 <div className="flex items-center gap-[10px] mb-[5px] leading-[1]">
